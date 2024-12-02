@@ -8,7 +8,6 @@ import { firestore } from "../firebase/firebase";
 const useFollowUnfollowUser = (userId) => {
   const [isUpdating, setIsUpdating] = useState(false);
   const [isFollowing, setIsFollowing] = useState(false);
-
   const authUser = useAuthStore((state) => state.user);
   const setAuthUser = useAuthStore((state) => state.setUser);
   const { userProfile, setUserProfile } = useUserProfileStore();

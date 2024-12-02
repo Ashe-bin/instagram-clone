@@ -1,9 +1,9 @@
 import { Box, Flex, Spinner } from "@chakra-ui/react";
-import SideBar from "@/components/SideBar";
 import { useLocation } from "react-router-dom";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from "../../firebase/firebase";
 import Navbar from "../../components/Navbar";
+import Sidebar from "../../components/Sidebar/SideBar";
 /* eslint-disable react/prop-types */
 const PageLayout = ({ children }) => {
   const { pathname } = useLocation();
@@ -18,7 +18,7 @@ const PageLayout = ({ children }) => {
     <Flex flexDir={canRenderNavBar ? "column" : "row"}>
       {canRenderSideBar ? (
         <Box w={{ base: "70px", md: "240px" }}>
-          <SideBar />
+          <Sidebar />
         </Box>
       ) : null}
       {canRenderNavBar ? <Navbar /> : null}
