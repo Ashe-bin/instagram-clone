@@ -10,22 +10,17 @@ import {
 import { AiFillHome } from "react-icons/ai";
 import { BiLogOut } from "react-icons/bi";
 import useLogOut from "../hooks/useLogOut";
-import useUserProfileStore from "../store/userProfileStore";
 
 const SideBar = () => {
-  const { userProfile } = useUserProfileStore();
-
   const sidebarItems = [
     { icon: <AiFillHome size={25} />, text: "Home", link: "/" },
     { icon: <SearchLogo />, text: "Search" },
     { icon: <NotificationsLogo />, text: "Notification" },
     { icon: <CreatePostLogo />, text: "Create" },
     {
-      icon: (
-        <Avatar size={"sm"} name="Ashe bin" src={userProfile.profilePicUrl} />
-      ),
+      icon: <Avatar size={"sm"} name="Ashe bin" src="./profilepic.png" />,
       text: "Profile",
-      link: `/${userProfile.username}`,
+      link: "/asaprogrammer",
     },
   ];
   const { handleLogOut, isLoggingOut } = useLogOut();

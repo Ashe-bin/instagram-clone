@@ -12,14 +12,11 @@ const useGetUserProfile = (username) => {
     const getUserProfile = async () => {
       setIsLoading(true);
       try {
-        console.log("started execution");
-
         const q = query(
           collection(firestore, "users"),
           where("username", "==", username)
         );
         const querySnapshot = await getDocs(q);
-        console.log("querySnapshot", querySnapshot);
 
         if (querySnapshot.empty) return setUserProfile(null);
 
@@ -28,7 +25,6 @@ const useGetUserProfile = (username) => {
           userDoc = doc.data();
         });
         setUserProfile(userDoc);
-        console.log(userDoc);
       } catch (error) {
         showToast("Error", error.message, "error");
       } finally {
