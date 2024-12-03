@@ -15,10 +15,9 @@ import {
 } from "../../assets/constants";
 import usePostComment from "../../hooks/usePostComment";
 import useAuthStore from "../../store/authStore";
+import useLikePost from "../../hooks/useLikePost";
 
 const PostFooter = ({ post, username, isProfilePage }) => {
-  const [liked, setLiked] = useState(false);
-  const [likeCount, setLikeCount] = useState(0);
   const [comment, setComment] = useState("");
 
   const { isLoading, handlePostComment } = usePostComment();
@@ -27,25 +26,18 @@ const PostFooter = ({ post, username, isProfilePage }) => {
 
   const authUser = useAuthStore((state) => state.user);
 
+  const { handleLikePost, isLiked, likes } = useLikePost(post);
+
   const handleSubmitComment = async () => {
     await handlePostComment(post.id, comment);
     setComment("");
   };
 
-  const handleLike = () => {
-    if (!liked) {
-      setLiked(true);
-      setLikeCount(likeCount + 1);
-    } else {
-      setLiked(false);
-      setLikeCount(likeCount - 1);
-    }
-  };
   return (
     <Box mb={10} mt={"auto"}>
       <Flex alignItems={"center"} gap={4} w={"full"} mb={2} mt={4}>
-        <Box onClick={handleLike} cursor={"pointer"} fontSize={18}>
-          {liked ? <UnlikeLogo /> : <NotificationsLogo />}
+        <Box onClick={handleLikePost} cursor={"pointer"} fontSize={18}>
+          {isLiked ? <UnlikeLogo /> : <NotificationsLogo />}
         </Box>
 
         <Box
@@ -57,7 +49,7 @@ const PostFooter = ({ post, username, isProfilePage }) => {
         </Box>
       </Flex>
       <Text fontWeight={600} fontSize={"sm"}>
-        {likeCount} likes
+        {likes} likes
       </Text>
       {!isProfilePage && (
         <>
