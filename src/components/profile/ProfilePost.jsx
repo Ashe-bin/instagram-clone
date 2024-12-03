@@ -1,5 +1,6 @@
 import {
   Avatar,
+  Box,
   Button,
   Divider,
   Flex,
@@ -34,9 +35,7 @@ const ProfilePost = ({ post }) => {
   const showToast = useShowToast();
   const [isDeleting, setIsDeleting] = useState(false);
   const deletePost = usePostStore((state) => state.deletePost);
-  const deletePostFromProfile = useUserProfileStore(
-    (state) => state.deletePost
-  );
+  const decrementPostCount = useUserProfileStore((state) => state.deletePost);
   const handleDeletePost = async () => {
     if (!window.confirm("Are you sure you want to delete this post ?")) return;
     setIsDeleting(true);
@@ -51,7 +50,7 @@ const ProfilePost = ({ post }) => {
       await updateDoc(userRef, { posts: arrayRemove(post.id) });
 
       deletePost(post.id);
-      deletePostFromProfile(post.id);
+      decrementPostCount(post.id);
       showToast("Success", "Posted deleted successfully", "success");
     } catch (error) {
       console.log(error);
@@ -166,6 +165,18 @@ const ProfilePost = ({ post }) => {
                     </Button>
                   )}
                 </Flex>
+                {post?.caption && (
+                  <Box
+                    w={"full"}
+                    alignSelf={"center"}
+                    justifySelf={"center"}
+                    p={2}
+                  >
+                    <Text fontWeight={"light"} fontSize={12}>
+                      {post?.caption}
+                    </Text>
+                  </Box>
+                )}
                 <Divider my={4} bg={"gray.500"} />
                 <VStack
                   w={"full"}
@@ -173,81 +184,12 @@ const ProfilePost = ({ post }) => {
                   maxH={"350px"}
                   overflowY={"auto"}
                 >
-                  <Comment
-                    createdAt={"12h ago"}
-                    username={"abramov"}
-                    profilePic={"/img1.png"}
-                    text={"nice pic"}
-                  />{" "}
-                  <Comment
-                    createdAt={"12h ago"}
-                    username={"ajkl"}
-                    profilePic={"/img4.png"}
-                    text={"nice djakljkljla pic"}
-                  />{" "}
-                  <Comment
-                    createdAt={"12h ago"}
-                    username={"nib"}
-                    profilePic={"/img3.png"}
-                    text={"public pic"}
-                  />
-                  <Comment
-                    createdAt={"12h ago"}
-                    username={"abramov"}
-                    profilePic={"/img1.png"}
-                    text={"nice pic"}
-                  />{" "}
-                  <Comment
-                    createdAt={"12h ago"}
-                    username={"ajkl"}
-                    profilePic={"/img4.png"}
-                    text={"nice djakljkljla pic"}
-                  />{" "}
-                  <Comment
-                    createdAt={"12h ago"}
-                    username={"nib"}
-                    profilePic={"/img3.png"}
-                    text={"public pic"}
-                  />
-                  <Comment
-                    createdAt={"12h ago"}
-                    username={"abramov"}
-                    profilePic={"/img1.png"}
-                    text={"nice pic"}
-                  />{" "}
-                  <Comment
-                    createdAt={"12h ago"}
-                    username={"ajkl"}
-                    profilePic={"/img4.png"}
-                    text={"nice djakljkljla pic"}
-                  />{" "}
-                  <Comment
-                    createdAt={"12h ago"}
-                    username={"nib"}
-                    profilePic={"/img3.png"}
-                    text={"public pic"}
-                  />
-                  <Comment
-                    createdAt={"12h ago"}
-                    username={"abramov"}
-                    profilePic={"/img1.png"}
-                    text={"nice pic"}
-                  />{" "}
-                  <Comment
-                    createdAt={"12h ago"}
-                    username={"ajkl"}
-                    profilePic={"/img4.png"}
-                    text={"nice djakljkljla pic"}
-                  />{" "}
-                  <Comment
-                    createdAt={"12h ago"}
-                    username={"nib"}
-                    profilePic={"/img3.png"}
-                    text={"public pic"}
-                  />
+                  {post.comments.map((comment) => (
+                    <Comment key={comment.id} comment={comment} />
+                  ))}
                 </VStack>
                 <Divider my={4} bg={"gray.800"} />
-                <PostFooter isProfilePage={true} />
+                <PostFooter post={post} isProfilePage={true} />
               </Flex>
             </Flex>
           </ModalBody>
@@ -258,34 +200,3 @@ const ProfilePost = ({ post }) => {
 };
 
 export default ProfilePost;
-
-// const ConfirmationModal = ({ deletePost }) => {
-//   const { onOpen, isOpen, onClose } = useDisclosure();
-//   onOpen();
-//   return (
-//     <Modal closeOnOverlayClick={false} isOpen={isOpen} onClose={onClose}>
-//       <ModalOverlay />
-//       <ModalContent>
-//         <ModalHeader>Create your account</ModalHeader>
-//         <ModalCloseButton />
-//         <ModalBody pb={6}>
-//           <Text> Are you sure you want to delete this post.</Text>
-//         </ModalBody>
-
-//         <ModalFooter>
-//           <Button
-//             colorScheme="blue"
-//             mr={3}
-//             onClick={() => {
-//               onClose();
-//               deletePost();
-//             }}
-//           >
-//             delete
-//           </Button>
-//           <Button onClick={() => onClose()}>Cancel</Button>
-//         </ModalFooter>
-//       </ModalContent>
-//     </Modal>
-//   );
-// };
