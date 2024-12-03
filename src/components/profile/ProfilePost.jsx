@@ -21,11 +21,46 @@ import Comment from "../Comment";
 import PostFooter from "../FeedPosts/PostFooter";
 import useUserProfileStore from "../../store/userProfileStore";
 import useAuthStore from "../../store/authStore";
+import useShowToast from "../../hooks/useShowToast";
+import { useState } from "react";
+import { firestore } from "../../firebase/firebase";
+import { arrayRemove, deleteDoc, doc, updateDoc } from "firebase/firestore";
+import usePostStore from "../../store/postStore";
 
 const ProfilePost = ({ post }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const userProfile = useUserProfileStore((state) => state.userProfile);
   const authUser = useAuthStore((state) => state.user);
+  const showToast = useShowToast();
+  const [isDeleting, setIsDeleting] = useState(false);
+  const deletePost = usePostStore((state) => state.deletePost);
+  const deletePostFromProfile = useUserProfileStore(
+    (state) => state.deletePost
+  );
+  const handleDeletePost = async () => {
+    if (!window.confirm("Are you sure you want to delete this post ?")) return;
+    setIsDeleting(true);
+    if (isDeleting) return;
+    try {
+      // const imageRef = ref(storage, `posts/${post.id}`);
+      // await deleteObject(imageRef);
+
+      const userRef = doc(firestore, "users", authUser.uid);
+      await deleteDoc(doc(firestore, "posts", post.id));
+
+      await updateDoc(userRef, { posts: arrayRemove(post.id) });
+
+      deletePost(post.id);
+      deletePostFromProfile(post.id);
+      showToast("Success", "Posted deleted successfully", "success");
+    } catch (error) {
+      console.log(error);
+
+      showToast("Error", error.message, "error");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   return (
     <>
@@ -124,6 +159,8 @@ const ProfilePost = ({ post }) => {
                       p={1}
                       size={"sm"}
                       bg={"transparent"}
+                      onClick={handleDeletePost}
+                      isLoading={isDeleting}
                     >
                       <MdDelete size={20} cursor={"pointer"} />
                     </Button>
@@ -221,3 +258,34 @@ const ProfilePost = ({ post }) => {
 };
 
 export default ProfilePost;
+
+// const ConfirmationModal = ({ deletePost }) => {
+//   const { onOpen, isOpen, onClose } = useDisclosure();
+//   onOpen();
+//   return (
+//     <Modal closeOnOverlayClick={false} isOpen={isOpen} onClose={onClose}>
+//       <ModalOverlay />
+//       <ModalContent>
+//         <ModalHeader>Create your account</ModalHeader>
+//         <ModalCloseButton />
+//         <ModalBody pb={6}>
+//           <Text> Are you sure you want to delete this post.</Text>
+//         </ModalBody>
+
+//         <ModalFooter>
+//           <Button
+//             colorScheme="blue"
+//             mr={3}
+//             onClick={() => {
+//               onClose();
+//               deletePost();
+//             }}
+//           >
+//             delete
+//           </Button>
+//           <Button onClick={() => onClose()}>Cancel</Button>
+//         </ModalFooter>
+//       </ModalContent>
+//     </Modal>
+//   );
+// };
