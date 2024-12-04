@@ -34,6 +34,7 @@ import {
 import { firestore, storage } from "../../firebase/firebase";
 import { getDownloadURL, ref, uploadString } from "firebase/storage";
 import usePostStore from "../../store/postStore";
+import { useLocation } from "react-router-dom";
 const CreatePost = () => {
   const { isOpen, onClose, onOpen } = useDisclosure();
   const [caption, setCaption] = useState("");
@@ -41,6 +42,7 @@ const CreatePost = () => {
   const { handleImageChange, selectedFile, setSelectedFile } = usePreviewImg();
   const { isLoading, handleCreatePost } = useCreatePost();
   const showToast = useShowToast();
+
   const handlePostCreation = async () => {
     try {
       await handleCreatePost(selectedFile, caption);
@@ -143,7 +145,8 @@ function useCreatePost() {
   const authUser = useAuthStore((state) => state.user);
   const createPost = usePostStore((state) => state.createPost);
   const addPost = useUserProfileStore((state) => state.addPost);
-  // const { pathname } = useLocation();
+  const userProfile = useUserProfileStore((state) => state.userProfile);
+  const { pathname } = useLocation();
 
   const handleCreatePost = async (selectedFile, caption) => {
     if (isLoading) return;
@@ -172,7 +175,10 @@ function useCreatePost() {
 
       newPost.imageURL = downloadURL;
       createPost({ ...newPost, id: postDocRef.id });
-      addPost({ ...newPost, id: postDocRef.id });
+
+      if (pathname !== "/" && userProfile.uid === authUser.uid) {
+        addPost({ ...newPost, id: postDocRef.id });
+      }
       showToast("Success", "Post created successfully", "success");
     } catch (error) {
       showToast("Error", error.message, "error");

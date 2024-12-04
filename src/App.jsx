@@ -6,10 +6,12 @@ import PageLayout from "./Layouts/PageLayout/PageLayout";
 import ProfilePage from "./pages/ProfilePage/ProfilePage";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from "./firebase/firebase";
+import useAuthStore from "./store/authStore";
 function App() {
   // instead of relying on the local storage rely on the fire base
-  // const authStore = useAuthStore((state) => state.user);
-  const [authUser] = useAuthState(auth);
+  const authUser = useAuthStore((state) => state.user);
+  // let [authUser] = useAuthState(auth);
+  // // // authUser = null;
   return (
     <PageLayout>
       <Routes>

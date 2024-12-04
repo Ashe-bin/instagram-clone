@@ -40,7 +40,7 @@ const useSignUpWithEmailAndPassword = () => {
     const querySnapshot = await getDocs(q);
     console.log("check for username", querySnapshot);
 
-    if (!querySnapshot.empty()) {
+    if (!querySnapshot.empty) {
       showToast("Error", "Username already exist!", "error");
       return;
     }

@@ -6,6 +6,7 @@ import {
   InputGroup,
   InputRightElement,
   Text,
+  useDisclosure,
 } from "@chakra-ui/react";
 import { useRef, useState } from "react";
 import {
@@ -16,10 +17,11 @@ import {
 import usePostComment from "../../hooks/usePostComment";
 import useAuthStore from "../../store/authStore";
 import useLikePost from "../../hooks/useLikePost";
+import CommentsModal from "../CommentModal";
 
-const PostFooter = ({ post, username, isProfilePage }) => {
+const PostFooter = ({ post, isProfilePage, userProfile }) => {
   const [comment, setComment] = useState("");
-
+  const { isOpen, onOpen, onClose } = useDisclosure();
   const { isLoading, handlePostComment } = usePostComment();
 
   const commentInputRef = useRef(null);
@@ -54,15 +56,25 @@ const PostFooter = ({ post, username, isProfilePage }) => {
       {!isProfilePage && (
         <>
           <Text fontSize="sm" fontWeight={700}>
-            {username}_{" "}
+            {userProfile?.username}
             <Text as="span" fontWeight={400}>
-              Feeling good
+              {post?.caption}
             </Text>
           </Text>
-          <Text fontSize={"sm"} color={"gray"}>
-            {" "}
-            view all 1,000 comments
-          </Text>
+          {post?.comments?.length > 0 && (
+            <Text
+              fontSize={"sm"}
+              color={"gray"}
+              onClick={onOpen}
+              cursor={"pointer"}
+            >
+              {" "}
+              view all {post?.comments?.length} comments
+            </Text>
+          )}
+          {isOpen && (
+            <CommentsModal isOpen={isOpen} onClose={onClose} post={post} />
+          )}
         </>
       )}
 

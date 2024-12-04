@@ -7,13 +7,13 @@ import { getStorage } from "firebase/storage";
 
 // this the configuration of the app or project you created on firebase this configuration will give you access to it.
 const firebaseConfig = {
-  apiKey: "AIzaSyDzMj_nPjAqPzXGWFabyr394i5zjtjQ-x4",
-  authDomain: "instagram-clone-8ae83.firebaseapp.com",
-  projectId: "instagram-clone-8ae83",
-  storageBucket: "instagram-clone-8ae83.firebasestorage.app",
-  messagingSenderId: "877513966818",
-  appId: "1:877513966818:web:97d09d83875198c790cabb",
-  measurementId: "G-6DRD34M00X",
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
 };
 // const analytics = getAnalytics(app);
 
