@@ -3,8 +3,8 @@ import { useLocation } from "react-router-dom";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from "../../firebase/firebase";
 import Navbar from "../../components/Navbar";
-import Sidebar from "../../components/Sidebar/SideBar";
-/* eslint-disable react/prop-types */
+import SideBar from "../../components/SideBar/SideBar";
+
 const PageLayout = ({ children }) => {
   const { pathname } = useLocation();
   const [user, loading] = useAuthState(auth);
@@ -18,7 +18,7 @@ const PageLayout = ({ children }) => {
     <Flex flexDir={canRenderNavBar ? "column" : "row"}>
       {canRenderSideBar ? (
         <Box w={{ base: "70px", md: "240px" }}>
-          <Sidebar />
+          <SideBar />
         </Box>
       ) : null}
       {canRenderNavBar ? <Navbar /> : null}
