@@ -14,23 +14,17 @@ const useEditProfile = () => {
 
   const showToast = useShowToast();
 
-  const editProfile = async (inputs) => {
+  const editProfile = async (publicUrl, inputs) => {
     if (isUpdating || !authUser) return;
     setIsUpdating(true);
-    // const storageRef = ref(storage, `profilePics/${authUser.uid}`);
     const userDocRef = doc(firestore, "users", authUser.uid);
-    // let URL = "";
     try {
-      //   if (selectedFile) {
-      //     await uploadString(storageRef, selectedFile, "data_url");
-      //     URL = await getDownloadURL(ref(storage, `profilePics/${authUser.uid}`));
-      //   }
       const updatedUser = {
         ...authUser,
         fullname: inputs.fullname || authUser.fullname,
         username: inputs.username || authUser.username,
         bio: inputs.bio || authUser.bio,
-        // profilePicUrl: URL || authUser.profilePicUrl,
+        profilePicUrl: publicUrl || authUser.profilePicUrl,
       };
       await updateDoc(userDocRef, updatedUser);
       localStorage.setItem("user-info", JSON.stringify(updatedUser));

@@ -24,6 +24,7 @@ import useShowToast from "../../hooks/useShowToast";
 import useAuthStore from "../../store/authStore";
 import useUserProfileStore from "../../store/userProfileStore";
 // import { useLocation } from "react-router-dom";
+import { supabase } from "../../../utils/supase";
 import {
   addDoc,
   arrayUnion,
@@ -31,8 +32,7 @@ import {
   doc,
   updateDoc,
 } from "firebase/firestore";
-import { firestore, storage } from "../../firebase/firebase";
-import { getDownloadURL, ref, uploadString } from "firebase/storage";
+import { firestore } from "../../firebase/firebase";
 import usePostStore from "../../store/postStore";
 import { useLocation } from "react-router-dom";
 const CreatePost = () => {
@@ -40,12 +40,14 @@ const CreatePost = () => {
   const [caption, setCaption] = useState("");
   const imageRef = useRef(null);
   const { handleImageChange, selectedFile, setSelectedFile } = usePreviewImg();
+  const [imageFile, setImageFile] = useState(null);
+
   const { isLoading, handleCreatePost } = useCreatePost();
   const showToast = useShowToast();
 
   const handlePostCreation = async () => {
     try {
-      await handleCreatePost(selectedFile, caption);
+      await handleCreatePost(imageFile, selectedFile, caption);
       onClose();
       setCaption("");
       setSelectedFile(null);
@@ -94,7 +96,10 @@ const CreatePost = () => {
               type="file"
               hidden
               ref={imageRef}
-              onChange={handleImageChange}
+              onChange={(e) => {
+                setImageFile(e.target.files[0]);
+                handleImageChange(e);
+              }}
             />
 
             <BsFillImageFill
@@ -148,7 +153,7 @@ function useCreatePost() {
   const userProfile = useUserProfileStore((state) => state.userProfile);
   const { pathname } = useLocation();
 
-  const handleCreatePost = async (selectedFile, caption) => {
+  const handleCreatePost = async (imageFile, selectedFile, caption) => {
     if (isLoading) return;
     if (!selectedFile) {
       showToast("Error", "Please select an image to post", "error");
@@ -165,15 +170,46 @@ function useCreatePost() {
     };
 
     try {
+      if (!imageFile) {
+        return;
+      }
+
+      console.log("file ", imageFile);
+      const fileExt = imageFile.name.split(".").pop().toLowerCase();
+
+      const fileName = `posts/${authUser.uid}-${Date.now()}.${fileExt}`;
+
+      const { data, error } = await supabase.storage
+        .from("image-storage") // Replace with your bucket name
+        .upload(fileName, imageFile);
+
+      if (error) {
+        showToast("Error", "Please try to upload again", "error");
+        throw new Error(
+          `uploading image to supabase storage error ${error.message}`
+        );
+      }
+      if (!data) {
+        showToast("Error", "please try again.", "error");
+      }
+
+      const {
+        data: { publicUrl },
+      } = supabase.storage.from("image-storage").getPublicUrl(fileName);
+      if (publicUrl) {
+        console.log("public url", publicUrl);
+      } else {
+        showToast("Error", "please try to upload again.", "error");
+      }
+
       const postDocRef = await addDoc(collection(firestore, "posts"), newPost);
       const userDocRef = doc(firestore, "users", authUser.uid);
-      const imageRef = ref(storage, `posts/${postDocRef.id}`);
-      await updateDoc(userDocRef, { posts: arrayUnion(postDocRef.id) });
-      await uploadString(imageRef, selectedFile, "data_url");
-      const downloadURL = await getDownloadURL(imageRef);
-      await updateDoc(postDocRef, { imageURL: downloadURL });
 
-      newPost.imageURL = downloadURL;
+      await updateDoc(userDocRef, { posts: arrayUnion(postDocRef.id) });
+
+      await updateDoc(postDocRef, { imageURL: publicUrl });
+
+      newPost.imageURL = publicUrl;
       createPost({ ...newPost, id: postDocRef.id });
 
       if (pathname !== "/" && userProfile.uid === authUser.uid) {
@@ -181,7 +217,10 @@ function useCreatePost() {
       }
       showToast("Success", "Post created successfully", "success");
     } catch (error) {
-      showToast("Error", error.message, "error");
+      showToast("Error", "please try again", "error");
+      throw new Error(
+        `error in the create post while uploading a file to supbase image storage error: ${error.message} `
+      );
     } finally {
       setIsLoading(false);
     }
