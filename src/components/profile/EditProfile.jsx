@@ -76,7 +76,7 @@ const EditProfile = ({ isOpen, onClose }) => {
         <ModalContent
           bg={"black"}
           boxShadow={"xl"}
-          border={"1px solid gray"}
+          border={"1px solid #2A3439"}
           mx={3}
         >
           <ModalHeader />

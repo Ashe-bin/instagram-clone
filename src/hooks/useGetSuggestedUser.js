@@ -17,6 +17,29 @@ const useGetSuggestedUser = () => {
   const authUser = useAuthStore((state) => state.user);
   const showToast = useShowToast();
 
+  const getAllUsers = async () => {
+    setIsLoading(true);
+    try {
+      const usersRef = collection(firestore, "users");
+      const q = query(
+        usersRef,
+        where("uid", "not-in", [authUser.uid, ...authUser.following]),
+        orderBy("uid")
+      );
+
+      const querySnapShot = await getDocs(q);
+      const users = [];
+      querySnapShot.forEach((doc) => {
+        users.push({ ...doc.data(), id: doc.id });
+      });
+      setSuggestedUser(users);
+    } catch (error) {
+      showToast("Error", error.message, "error");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
     const getSuggestedUser = async () => {
       setIsLoading(true);
@@ -43,7 +66,7 @@ const useGetSuggestedUser = () => {
     };
     if (authUser) getSuggestedUser();
   }, [authUser, showToast]);
-  return { isLoading, suggestedUser };
+  return { isLoading, suggestedUser, getAllUsers };
 };
 
 export default useGetSuggestedUser;

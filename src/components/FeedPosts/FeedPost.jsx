@@ -7,13 +7,19 @@ const FeedPost = ({ post }) => {
   const { userProfile, isLoading } = useGetUserProfileById(post.createdBy);
 
   return (
-    <>
+    <Box>
       <PostHeader post={post} userProfile={userProfile} isLoading={isLoading} />
       <Box my={2} overflow={"hidden"} borderRadius={10}>
-        <Image src={post.imageURL} alt="Feed post image" />
+        <Image
+          src={post.imageURL}
+          alt="Feed post image"
+          objectFit={"contain"}
+          maxW={"100%"}
+          maxH={"500px"}
+        />
       </Box>
       <PostFooter post={post} userProfile={userProfile} />
-    </>
+    </Box>
   );
 };
 

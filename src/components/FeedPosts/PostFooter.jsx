@@ -57,9 +57,9 @@ const PostFooter = ({ post, isProfilePage, userProfile }) => {
         <>
           <Text fontSize="sm" fontWeight={700}>
             {userProfile?.username}
-            <Text as="span" fontWeight={400}>
-              {post?.caption}
-            </Text>
+          </Text>
+          <Text as="span" my={2} fontWeight={400}>
+            {post?.caption}
           </Text>
           {post?.comments?.length > 0 && (
             <Text
@@ -96,7 +96,7 @@ const PostFooter = ({ post, isProfilePage, userProfile }) => {
           />
           <InputRightElement>
             <Button
-              fontSize={14}
+              fontSize={{ base: "sm", md: "md" }}
               color={"blue.500"}
               fontWeight={600}
               cursor={"pointer"}

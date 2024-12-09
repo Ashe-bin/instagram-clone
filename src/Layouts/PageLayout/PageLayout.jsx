@@ -3,7 +3,7 @@ import { useLocation } from "react-router-dom";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from "../../firebase/firebase";
 import Navbar from "../../components/Navbar";
-import SideBar from "../../components/SideBar/SideBar";
+import SideBarItems from "../../components/SideBarMenu/SideBarItems";
 
 const PageLayout = ({ children }) => {
   const { pathname } = useLocation();
@@ -18,7 +18,7 @@ const PageLayout = ({ children }) => {
     <Flex flexDir={canRenderNavBar ? "column" : "row"}>
       {canRenderSideBar ? (
         <Box w={{ base: "70px", md: "240px" }}>
-          <SideBar />
+          <SideBarItems />
         </Box>
       ) : null}
       {canRenderNavBar ? <Navbar /> : null}

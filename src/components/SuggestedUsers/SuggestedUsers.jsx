@@ -1,10 +1,17 @@
-import { Flex, Text, VStack } from "@chakra-ui/react";
+import {
+  Box,
+  Flex,
+  Skeleton,
+  SkeletonCircle,
+  Text,
+  VStack,
+} from "@chakra-ui/react";
 import SuggestedHeader from "./SuggestedHeader";
 import SuggestedUser from "./SuggestedUser";
 import useGetSuggestedUser from "../../hooks/useGetSuggestedUser";
 
 const SuggestedUsers = () => {
-  const { isLoading, suggestedUser } = useGetSuggestedUser();
+  const { isLoading, suggestedUser, getAllUsers } = useGetSuggestedUser();
   return (
     <VStack py={8} px={8} gap={4}>
       <SuggestedHeader />
@@ -18,14 +25,27 @@ const SuggestedUsers = () => {
             fontWeight={"bold"}
             _hover={{ color: "gray.400" }}
             cursor={"pointer"}
+            onClick={getAllUsers}
           >
             See All
           </Text>
         </Flex>
       )}
-      {suggestedUser.map((user) => (
-        <SuggestedUser user={user} key={user.uid} />
-      ))}
+      {isLoading && (
+        <Box width={"full"}>
+          {Array.from({ length: 3 }).map((_, index) => (
+            <Flex my={1} alignItems={"center"} key={index}>
+              <SkeletonCircle size={10} mr={"auto"} />
+              <Skeleton height={2} width={100} />
+            </Flex>
+          ))}
+        </Box>
+      )}
+
+      {!isLoading &&
+        suggestedUser.map((user) => (
+          <SuggestedUser user={user} key={user.uid} />
+        ))}
     </VStack>
   );
 };

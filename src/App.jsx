@@ -4,8 +4,8 @@ import AuthPage from "./pages/AuthPage/AuthPage";
 import HomePage from "./pages/HomePage/HomePage";
 import PageLayout from "./Layouts/PageLayout/PageLayout";
 import ProfilePage from "./pages/ProfilePage/ProfilePage";
-import { useAuthState } from "react-firebase-hooks/auth";
-import { auth } from "./firebase/firebase";
+// import { useAuthState } from "react-firebase-hooks/auth";
+// import { auth } from "./firebase/firebase";
 import useAuthStore from "./store/authStore";
 function App() {
   // instead of relying on the local storage rely on the fire base

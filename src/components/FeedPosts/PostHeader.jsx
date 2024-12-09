@@ -59,7 +59,7 @@ const PostHeader = ({ post, userProfile, isLoading }) => {
         <Button
           size={"xs"}
           bg={"transparent"}
-          fontSize={12}
+          fontSize={{ basic: "sm", md: "md" }}
           color={"blue.500"}
           fontWeight={"bold"}
           _hover={{ color: "white" }}
