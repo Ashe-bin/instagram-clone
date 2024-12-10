@@ -1,8 +1,15 @@
-import { Button, Input, InputGroup, InputRightElement } from "@chakra-ui/react";
+import {
+  Button,
+  Input,
+  InputGroup,
+  InputRightElement,
+  Text,
+} from "@chakra-ui/react";
 import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 import { useState } from "react";
-import useSignUpWithEmailAndPassword from "../../hooks/useSignUpwithEmailandPassword";
-// use hook to perform sign up operation
+
+import useSignUpEmailPassword from "../../hooks/useSignUpEmailPassword";
+import { validateEmail, validatePassword } from "../../../utils/validation";
 const Signup = () => {
   const [inputs, setInputs] = useState({
     fullname: "",
@@ -11,7 +18,27 @@ const Signup = () => {
     password: "",
   });
   const [showPassword, setShowPassword] = useState(false);
-  const { loading, SignupAction } = useSignUpWithEmailAndPassword();
+  const { loading, SignupAction } = useSignUpEmailPassword();
+  const [error, setError] = useState({ email: "", password: "" });
+
+  const handleSignUp = () => {
+    const emailError = validateEmail(inputs.email);
+    const passwordError = validatePassword(inputs.password);
+    setError({ email: "", password: "" });
+    if (emailError || passwordError) {
+      if (emailError) {
+        setError((prevError) => ({ ...prevError, email: emailError }));
+        setInputs((prevInputs) => ({ ...prevInputs, email: "" }));
+      }
+
+      if (passwordError) {
+        setError((prevError) => ({ ...prevError, password: passwordError }));
+        setInputs((prevInputs) => ({ ...prevInputs, password: "" }));
+      }
+      return;
+    }
+    SignupAction(inputs);
+  };
   return (
     <>
       <Input
@@ -21,6 +48,17 @@ const Signup = () => {
         fontSize={14}
         type="email"
       />
+      {error.email && (
+        <Text
+          width={"90%"}
+          mx={"auto"}
+          my={1}
+          fontSize={"xs"}
+          color={"red.400"}
+        >
+          {error.email}
+        </Text>
+      )}
       <Input
         value={inputs.username}
         onChange={(e) => setInputs({ ...inputs, username: e.target.value })}
@@ -53,6 +91,17 @@ const Signup = () => {
           </Button>
         </InputRightElement>
       </InputGroup>
+      {error.password && (
+        <Text
+          width={"90%"}
+          mx={"auto"}
+          fontSize={"xs"}
+          my={1}
+          color={"red.400"}
+        >
+          {error.password}
+        </Text>
+      )}
 
       <Button
         w={"full"}
@@ -60,7 +109,7 @@ const Signup = () => {
         size={"sm"}
         fontSize={14}
         isLoading={loading}
-        onClick={() => SignupAction(inputs)}
+        onClick={handleSignUp}
       >
         Sign Up
       </Button>

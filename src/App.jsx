@@ -8,10 +8,8 @@ import ProfilePage from "./pages/ProfilePage/ProfilePage";
 // import { auth } from "./firebase/firebase";
 import useAuthStore from "./store/authStore";
 function App() {
-  // instead of relying on the local storage rely on the fire base
   const authUser = useAuthStore((state) => state.user);
   // let [authUser] = useAuthState(auth);
-  // // // authUser = null;
   return (
     <PageLayout>
       <Routes>

@@ -11,16 +11,10 @@ import { useCreateUserWithEmailAndPassword } from "react-firebase-hooks/auth";
 import useShowToast from "./useShowToast";
 import useAuthStore from "../store/authStore";
 
-const useSignUpWithEmailAndPassword = () => {
-  // this hook performs the sign in and returns the user credential if sign in is successfull and else returens undefined.
-  //   it wraps the underlying firebase.auth().createUserWithEmailAndPassword()
-
+const useSignUpEmailPassword = () => {
   const [createUserWithEmailAndPassword, , loading, error] =
     useCreateUserWithEmailAndPassword(auth);
   const showToast = useShowToast();
-  // access the zustand store.
-  // extracting the login action
-  // we can call a function loginUser with the user data object to update the state.
   const loginUser = useAuthStore((state) => state.login);
 
   const SignupAction = async (inputs) => {
@@ -35,7 +29,6 @@ const useSignUpWithEmailAndPassword = () => {
     }
     const usersRef = collection(firestore, "users");
 
-    // Create a query against the collection.
     const q = query(usersRef, where("username", "==", inputs.username));
     const querySnapshot = await getDocs(q);
     console.log("check for username", querySnapshot);
@@ -45,7 +38,6 @@ const useSignUpWithEmailAndPassword = () => {
       return;
     }
     try {
-      // passing email and password to the function if success it returns the instance of the user credential else it will be undefined.
       console.log(inputs.email, inputs.password);
 
       const newUser = await createUserWithEmailAndPassword(
@@ -62,7 +54,6 @@ const useSignUpWithEmailAndPassword = () => {
           "Your signed up successfully",
           "success"
         );
-        // this the user document that is going to be stored for the authenticated user in the firestore database of firebase.
         const userDoc = {
           uid: newUser.user.uid,
           email: inputs.email,
@@ -89,4 +80,4 @@ const useSignUpWithEmailAndPassword = () => {
   return { loading, error, SignupAction };
 };
 
-export default useSignUpWithEmailAndPassword;
+export default useSignUpEmailPassword;

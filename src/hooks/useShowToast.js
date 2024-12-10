@@ -3,7 +3,7 @@ import { useCallback } from "react";
 
 const useShowToast = () => {
   const toast = useToast();
-  // used to prevent redefining a function that cause the useEffect dependency to change every time by caching the function to prevent infinite loop
+
   const showToast = useCallback(
     (title, description, status) => {
       toast({

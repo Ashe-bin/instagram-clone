@@ -20,7 +20,6 @@ const usePreviewImg = () => {
       reader.onloadend = () => {
         setSelectedFile(reader.result);
       };
-      //   take the image file and convert it to the base 16 string
       reader.readAsDataURL(file);
     } else {
       showToast("Error", "Please select an image file", "error");
