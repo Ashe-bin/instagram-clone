@@ -31,21 +31,17 @@ const useSignUpEmailPassword = () => {
 
     const q = query(usersRef, where("username", "==", inputs.username));
     const querySnapshot = await getDocs(q);
-    console.log("check for username", querySnapshot);
 
     if (!querySnapshot.empty) {
       showToast("Error", "Username already exist!", "error");
       return;
     }
     try {
-      console.log(inputs.email, inputs.password);
-
       const newUser = await createUserWithEmailAndPassword(
         inputs.email,
         inputs.password
       );
       if (!newUser) {
-        console.log("not successfull");
         return;
       }
       if (newUser) {
@@ -73,7 +69,6 @@ const useSignUpEmailPassword = () => {
       }
     } catch (error) {
       showToast("Error", error.message, "error");
-      console.log(error);
     }
   };
 

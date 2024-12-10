@@ -9,11 +9,16 @@ import {
 import { Link } from "react-router-dom";
 import useFollowUnfollowUser from "../../hooks/useFollowUnfollowUser";
 import { timeAgo } from "../../../utils/timeAgo";
+import useAuthStore from "../../store/authStore";
 
 const PostHeader = ({ post, userProfile, isLoading }) => {
   const { handleFollowUser, isFollowing, isUpdating } = useFollowUnfollowUser(
     post.createdBy
   );
+
+  const authUser = useAuthStore((state) => state.user);
+
+  const postCreatedOwn = post.createdBy === authUser.uid;
 
   if (isLoading) {
     return (
@@ -55,21 +60,23 @@ const PostHeader = ({ post, userProfile, isLoading }) => {
           </Flex>
         </Link>
       </Flex>
-      <Box cursor={"pointer"}>
-        <Button
-          size={"xs"}
-          bg={"transparent"}
-          fontSize={{ basic: "sm", md: "md" }}
-          color={"blue.500"}
-          fontWeight={"bold"}
-          _hover={{ color: "white" }}
-          transition={"0.2s ease-in-out"}
-          isLoading={isUpdating}
-          onClick={handleFollowUser}
-        >
-          {isFollowing ? "unFollow" : "Follow"}
-        </Button>
-      </Box>
+      {!postCreatedOwn && (
+        <Box cursor={"pointer"}>
+          <Button
+            size={"xs"}
+            bg={"transparent"}
+            fontSize={{ basic: "sm", md: "md" }}
+            color={"blue.500"}
+            fontWeight={"bold"}
+            _hover={{ color: "white" }}
+            transition={"0.2s ease-in-out"}
+            isLoading={isUpdating}
+            onClick={handleFollowUser}
+          >
+            {isFollowing ? "unFollow" : "Follow"}
+          </Button>
+        </Box>
+      )}
     </Flex>
   );
 };

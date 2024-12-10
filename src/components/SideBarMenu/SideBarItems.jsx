@@ -62,7 +62,6 @@ const SideBarItems = () => {
           display={{ base: "block", md: "none" }}
         >
           <Flex
-            onClick={handleLogout}
             alignItems={"center"}
             gap={4}
             _hover={{ bg: "whiteAlpha.400" }}
@@ -71,6 +70,7 @@ const SideBarItems = () => {
             w={{ base: 10, md: "full" }}
             mt={"auto"}
             justifyContent={{ base: "center", md: "flex-start" }}
+            onClick={handleLogout}
           >
             <BiLogOut size={25} />
             <Button
@@ -78,6 +78,7 @@ const SideBarItems = () => {
               variant={"ghost"}
               _hover={{ bg: "transparent" }}
               isLoading={isLoggingOut}
+              onClick={handleLogout}
             >
               Logout
             </Button>

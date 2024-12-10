@@ -53,8 +53,6 @@ const ProfilePost = ({ post }) => {
       decrementPostCount(post.id);
       showToast("Success", "Posted deleted successfully", "success");
     } catch (error) {
-      console.log(error);
-
       showToast("Error", error.message, "error");
     } finally {
       setIsDeleting(false);

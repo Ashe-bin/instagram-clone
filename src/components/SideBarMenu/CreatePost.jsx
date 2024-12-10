@@ -174,7 +174,6 @@ function useCreatePost() {
         return;
       }
 
-      console.log("file ", imageFile);
       const fileExt = imageFile.name.split(".").pop().toLowerCase();
 
       const fileName = `posts/${authUser.uid}-${Date.now()}.${fileExt}`;
@@ -196,9 +195,7 @@ function useCreatePost() {
       const {
         data: { publicUrl },
       } = supabase.storage.from("image-storage").getPublicUrl(fileName);
-      if (publicUrl) {
-        console.log("public url", publicUrl);
-      } else {
+      if (!publicUrl) {
         showToast("Error", "please try to upload again.", "error");
       }
 
