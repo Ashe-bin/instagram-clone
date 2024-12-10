@@ -9,7 +9,8 @@ import Home from "./Home";
 import ProfileLink from "./ProfileLink";
 import Search from "./Search";
 const SideBarItems = () => {
-  const { handleLogout, isLoggingOut } = useLogOut();
+  const { handleLogOut, isLoggingOut } = useLogOut();
+
   return (
     <Box
       height={"100vh"}
@@ -65,12 +66,13 @@ const SideBarItems = () => {
             alignItems={"center"}
             gap={4}
             _hover={{ bg: "whiteAlpha.400" }}
+            _active={{ bg: "whiteAlpha.600" }}
             borderRadius={6}
             p={2}
             w={{ base: 10, md: "full" }}
             mt={"auto"}
             justifyContent={{ base: "center", md: "flex-start" }}
-            onClick={handleLogout}
+            onClick={handleLogOut}
           >
             <BiLogOut size={25} />
             <Button
@@ -78,7 +80,6 @@ const SideBarItems = () => {
               variant={"ghost"}
               _hover={{ bg: "transparent" }}
               isLoading={isLoggingOut}
-              onClick={handleLogout}
             >
               Logout
             </Button>

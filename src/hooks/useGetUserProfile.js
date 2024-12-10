@@ -10,6 +10,8 @@ const useGetUserProfile = (username) => {
   const { userProfile, setUserProfile } = useUserProfileStore();
   useEffect(() => {
     const getUserProfile = async () => {
+      console.log("getting the user");
+
       setIsLoading(true);
       try {
         const q = query(
@@ -24,6 +26,7 @@ const useGetUserProfile = (username) => {
         querySnapshot.forEach((doc) => {
           userDoc = doc.data();
         });
+        console.log("userDoc", userDoc);
         setUserProfile(userDoc);
       } catch (error) {
         showToast("Error", error.message, "error");

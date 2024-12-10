@@ -8,6 +8,8 @@ const useLogOut = () => {
   const showToast = useShowToast();
   const logoutUser = useAuthStore((state) => state.logout);
   const handleLogOut = async () => {
+    console.log("from side bar button");
+
     try {
       await signOut();
       localStorage.removeItem("user-info");
