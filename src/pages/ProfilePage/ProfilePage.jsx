@@ -15,6 +15,7 @@ import useGetUserProfile from "../../hooks/useGetUserProfile";
 import { Link as RouterLink } from "react-router-dom";
 const ProfilePage = () => {
   const { username } = useParams();
+
   const { isLoading, userProfile } = useGetUserProfile(username);
   const userNotFound = !isLoading && !userProfile;
   if (userNotFound) return <UserNotFound />;
