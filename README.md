@@ -1,15 +1,10 @@
 <h1 align="center">✨ Instagram Clone ✨</h1>
 
-<p align="center">
- Instagram clone, mimicking some of its core features. 📸<br />
-  Built with modern tools to provide a sleek user experience and responsive design. 🌟
-</p>
-
 ---
 
 ## 🚀 Introduction
 
-**Instagram Clone** is a project that mimics some of the standard features of Instagram.  
+**Instagram Clone** is a project that mimics some of the features of Instagram.  
 This project provides a hands-on implementation of modern web technologies to create an interactive and responsive user experience.
 
 ---
