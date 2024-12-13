@@ -39,7 +39,11 @@ const CreatePost = () => {
   const { isOpen, onClose, onOpen } = useDisclosure();
   const [caption, setCaption] = useState("");
   const imageRef = useRef(null);
-  const { handleImageChange, selectedFile, setSelectedFile } = usePreviewImg();
+  const {
+    handleImageChange,
+    selectedFile,
+    setSelectedFile,
+  } = usePreviewImg();
   const [imageFile, setImageFile] = useState(null);
 
   const { isLoading, handleCreatePost } = useCreatePost();
@@ -47,7 +51,11 @@ const CreatePost = () => {
 
   const handlePostCreation = async () => {
     try {
-      await handleCreatePost(imageFile, selectedFile, caption);
+      await handleCreatePost(
+        imageFile,
+        selectedFile,
+        caption
+      );
       onClose();
       setCaption("");
       setSelectedFile(null);
@@ -72,17 +80,25 @@ const CreatePost = () => {
           borderRadius={6}
           p={2}
           w={{ base: 10, md: "full" }}
-          justifyContent={{ base: "center", md: "flex-start" }}
+          justifyContent={{
+            base: "center",
+            md: "flex-start",
+          }}
           onClick={onOpen}
         >
           <CreatePostLogo />
-          <Box display={{ base: "none", md: "block" }}>Create</Box>
+          <Box display={{ base: "none", md: "block" }}>
+            Create
+          </Box>
         </Flex>
       </Tooltip>
       <Modal isOpen={isOpen} onClose={onClose} size="xl">
         <ModalOverlay />
 
-        <ModalContent bg={"black"} border={"1px solid gray"}>
+        <ModalContent
+          bg={"black"}
+          border={"1px solid gray"}
+        >
           <ModalHeader>Create Post</ModalHeader>
           <ModalCloseButton />
           <ModalBody pb={6}>
@@ -118,7 +134,10 @@ const CreatePost = () => {
                 position={"relative"}
                 justifyContent={"center"}
               >
-                <Image src={selectedFile} alt="selected image" />
+                <Image
+                  src={selectedFile}
+                  alt="selected image"
+                />
                 <CloseButton
                   position={"absolute"}
                   top={2}
@@ -132,7 +151,11 @@ const CreatePost = () => {
           </ModalBody>
 
           <ModalFooter>
-            <Button mr={3} onClick={handlePostCreation} isLoading={isLoading}>
+            <Button
+              mr={3}
+              onClick={handlePostCreation}
+              isLoading={isLoading}
+            >
               Post
             </Button>
           </ModalFooter>
@@ -148,15 +171,29 @@ function useCreatePost() {
   const showToast = useShowToast();
   const [isLoading, setIsLoading] = useState();
   const authUser = useAuthStore((state) => state.user);
-  const createPost = usePostStore((state) => state.createPost);
-  const addPost = useUserProfileStore((state) => state.addPost);
-  const userProfile = useUserProfileStore((state) => state.userProfile);
+  const createPost = usePostStore(
+    (state) => state.createPost
+  );
+  const addPost = useUserProfileStore(
+    (state) => state.addPost
+  );
+  const userProfile = useUserProfileStore(
+    (state) => state.userProfile
+  );
   const { pathname } = useLocation();
 
-  const handleCreatePost = async (imageFile, selectedFile, caption) => {
+  const handleCreatePost = async (
+    imageFile,
+    selectedFile,
+    caption
+  ) => {
     if (isLoading) return;
     if (!selectedFile) {
-      showToast("Error", "Please select an image to post", "error");
+      showToast(
+        "Error",
+        "Please select an image to post",
+        "error"
+      );
       return;
     }
     setIsLoading(true);
@@ -174,16 +211,25 @@ function useCreatePost() {
         return;
       }
 
-      const fileExt = imageFile.name.split(".").pop().toLowerCase();
+      const fileExt = imageFile.name
+        .split(".")
+        .pop()
+        .toLowerCase();
 
-      const fileName = `posts/${authUser.uid}-${Date.now()}.${fileExt}`;
+      const fileName = `posts/${
+        authUser.uid
+      }-${Date.now()}.${fileExt}`;
 
       const { data, error } = await supabase.storage
         .from("image-storage") // Replace with your bucket name
         .upload(fileName, imageFile);
 
       if (error) {
-        showToast("Error", "Please try to upload again", "error");
+        showToast(
+          "Error",
+          "Please try to upload again",
+          "error"
+        );
         throw new Error(
           `uploading image to supabase storage error ${error.message}`
         );
@@ -194,25 +240,50 @@ function useCreatePost() {
 
       const {
         data: { publicUrl },
-      } = supabase.storage.from("image-storage").getPublicUrl(fileName);
+      } = supabase.storage
+        .from("image-storage")
+        .getPublicUrl(fileName);
       if (!publicUrl) {
-        showToast("Error", "please try to upload again.", "error");
+        showToast(
+          "Error",
+          "please try to upload again.",
+          "error"
+        );
       }
+      console.log("2,  getPublicUrl", publicUrl);
 
-      const postDocRef = await addDoc(collection(firestore, "posts"), newPost);
-      const userDocRef = doc(firestore, "users", authUser.uid);
+      const postDocRef = await addDoc(
+        collection(firestore, "posts"),
+        newPost
+      );
+      const userDocRef = doc(
+        firestore,
+        "users",
+        authUser.uid
+      );
 
-      await updateDoc(userDocRef, { posts: arrayUnion(postDocRef.id) });
+      await updateDoc(userDocRef, {
+        posts: arrayUnion(postDocRef.id),
+      });
 
       await updateDoc(postDocRef, { imageURL: publicUrl });
 
       newPost.imageURL = publicUrl;
-      createPost({ ...newPost, id: postDocRef.id });
+      console.log("3, newpost", newPost);
 
-      if (pathname !== "/" && userProfile.uid === authUser.uid) {
+      if (
+        pathname !== "/" &&
+        userProfile.uid === authUser.uid
+      ) {
+        createPost({ ...newPost, id: postDocRef.id });
+
         addPost({ ...newPost, id: postDocRef.id });
       }
-      showToast("Success", "Post created successfully", "success");
+      showToast(
+        "Success",
+        "Post created successfully",
+        "success"
+      );
     } catch (error) {
       showToast("Error", "please try again", "error");
       throw new Error(

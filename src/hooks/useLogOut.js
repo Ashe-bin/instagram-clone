@@ -12,8 +12,6 @@ const useLogOut = () => {
   const navigate = useNavigate();
 
   const handleLogOut = async () => {
-    console.log("from side bar button");
-
     try {
       await signOut();
       localStorage.removeItem("user-info");

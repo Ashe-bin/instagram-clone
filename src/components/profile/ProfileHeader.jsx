@@ -15,9 +15,8 @@ const ProfileHeader = () => {
   const { userProfile } = useUserProfileStore();
   const authUser = useAuthStore((state) => state.user);
 
-  const { isFollowing, isUpdating, handleFollowUser } = useFollowUnfollowUser(
-    userProfile?.uid
-  );
+  const { isFollowing, isUpdating, handleFollowUser } =
+    useFollowUnfollowUser(userProfile?.uid);
 
   const visitingOwnProfileAndAuthenticated =
     authUser && authUser.username === userProfile.username;
@@ -48,20 +47,35 @@ const ProfileHeader = () => {
           alignSelf={"center"}
           mx={"auto"}
         >
-          <Avatar src={userProfile.profilePicUrl} alt="profile picture" />
+          <Avatar
+            src={userProfile.profilePicUrl}
+            alt="profile picture"
+          />
         </AvatarGroup>
-        <VStack alignItems={"start"} gap={2} mx={"auto"} flex={1}>
+        <VStack
+          alignItems={"start"}
+          gap={2}
+          mx={"auto"}
+          flex={1}
+        >
           <Flex
             gap={4}
             direction={{ base: "column", sm: "row" }}
-            justifyContent={{ base: "center", sm: "flex-start" }}
+            justifyContent={{
+              base: "center",
+              sm: "flex-start",
+            }}
             alignItems={"center"}
             w={"full"}
           >
             <Text fontSize={{ base: "sm", md: "lg" }}>
               {userProfile.username}
             </Text>
-            <Flex gap={1} alignItems={"center"} justifyContent={"center"}>
+            <Flex
+              gap={1}
+              alignItems={"center"}
+              justifyContent={"center"}
+            >
               {visitingOwnProfileAndAuthenticated && (
                 <>
                   <Button
@@ -130,14 +144,20 @@ const ProfileHeader = () => {
             </Text>
           </Flex>
           <Flex alignItems={"center"} gap={4}>
-            <Text fontSize={{ base: "sm", md: "lg" }} fontWeight={"bold"}>
+            <Text
+              fontSize={{ base: "sm", md: "lg" }}
+              fontWeight={"bold"}
+            >
               {userProfile.fullname}
             </Text>
           </Flex>
           <Text fontSize={"md"}>{userProfile.bio}</Text>
         </VStack>
         {isEditOpen && (
-          <EditProfile isOpen={isEditOpen} onClose={onEditClose} />
+          <EditProfile
+            isOpen={isEditOpen}
+            onClose={onEditClose}
+          />
         )}
       </Flex>
     </Flex>
