@@ -25,52 +25,38 @@ import useAuthStore from "../../store/authStore";
 import useShowToast from "../../hooks/useShowToast";
 import { useState } from "react";
 import { firestore } from "../../firebase/firebase";
-import {
-  arrayRemove,
-  deleteDoc,
-  doc,
-  updateDoc,
-} from "firebase/firestore";
+import { arrayRemove, deleteDoc, doc, updateDoc } from "firebase/firestore";
 import usePostStore from "../../store/postStore";
 
 const ProfilePost = ({ post }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const userProfile = useUserProfileStore(
-    (state) => state.userProfile
-  );
+  const userProfile = useUserProfileStore((state) => state.userProfile);
   const authUser = useAuthStore((state) => state.user);
   const showToast = useShowToast();
   const [isDeleting, setIsDeleting] = useState(false);
-  const deletePost = usePostStore(
-    (state) => state.deletePost
-  );
-  const decrementPostCount = useUserProfileStore(
-    (state) => state.deletePost
-  );
+  const deletePost = usePostStore((state) => state.deletePost);
+  const decrementPostCount = useUserProfileStore((state) => state.deletePost);
+
+  // Check if URL is a video or image
+  const isVideo =
+    post?.imageURL.includes("mp4") ||
+    post?.imageURL.includes("mov") ||
+    post?.imageURL.includes("avi");
+
   const handleDeletePost = async () => {
-    if (
-      !window.confirm(
-        "Are you sure you want to delete this post ?"
-      )
-    )
-      return;
+    if (!window.confirm("Are you sure you want to delete this post?")) return;
     setIsDeleting(true);
     if (isDeleting) return;
     try {
       const userRef = doc(firestore, "users", authUser.uid);
       await deleteDoc(doc(firestore, "posts", post.id));
-
       await updateDoc(userRef, {
         posts: arrayRemove(post.id),
       });
 
       deletePost(post.id);
       decrementPostCount(post.id);
-      showToast(
-        "Success",
-        "Posted deleted successfully",
-        "success"
-      );
+      showToast("Success", "Post deleted successfully", "success");
     } catch (error) {
       showToast("Error", error.message, "error");
     } finally {
@@ -103,11 +89,7 @@ const ProfilePost = ({ post }) => {
           zIndex={1}
           justifyContent={"center"}
         >
-          <Flex
-            alignItems={"center"}
-            justifyContent={"center"}
-            gap={50}
-          >
+          <Flex alignItems={"center"} justifyContent={"center"} gap={50}>
             <Flex>
               <AiFillHeart size={20} />
               <Text fontWeight={"bold"} ml={2}>
@@ -122,14 +104,25 @@ const ProfilePost = ({ post }) => {
             </Flex>
           </Flex>
         </Flex>
-        <Image
-          src={post.imageURL}
-          alt="Profile"
-          w={"100%"}
-          h={"100%"}
-          objectFit={"cover"}
-        />
+        {/* Render either Image or Video */}
+        {isVideo ? (
+          <video
+            src={post.imageURL}
+            alt="Post Video"
+            controls
+            style={{ width: "100%", maxHeight: "500px", objectFit: "cover" }}
+          />
+        ) : (
+          <Image
+            src={post.imageURL}
+            alt="Post Image"
+            maxW={"100%"}
+            maxHeight={"500px"}
+            objectFit={"cover"}
+          />
+        )}
       </GridItem>
+
       <Modal
         isCentered={true}
         size={{ base: "3xl", md: "5xl" }}
@@ -157,11 +150,24 @@ const ProfilePost = ({ post }) => {
                 justifyContent={"center"}
                 alignItems={"center"}
               >
-                <Image
-                  src={post.imageURL}
-                  objectFit={"cover"}
-                  alt="posts"
-                />
+                {/* Render either Image or Video in the modal as well */}
+                {isVideo ? (
+                  <video
+                    src={post.imageURL}
+                    controls
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "cover",
+                    }}
+                  />
+                ) : (
+                  <Image
+                    src={post.imageURL}
+                    alt="Post Image"
+                    objectFit={"cover"}
+                  />
+                )}
               </Flex>
               <Flex
                 flex={1}
@@ -169,25 +175,16 @@ const ProfilePost = ({ post }) => {
                 px={10}
                 display={{ base: "none", md: "flex" }}
               >
-                <Flex
-                  alignItems={"center"}
-                  justifyContent={"space-between"}
-                >
+                <Flex alignItems={"center"} justifyContent={"space-between"}>
                   <Flex alignItems={"center"} gap={4}>
-                    <Avatar
-                      src={userProfile.profilePicUrl}
-                      size={"sm"}
-                    />
+                    <Avatar src={userProfile.profilePicUrl} size={"sm"} />
                     <Text fontWeight={"bold"} fontSize={12}>
                       {userProfile.username}
                     </Text>
                   </Flex>
                   {authUser?.uid === userProfile.uid && (
                     <Button
-                      _hover={{
-                        bg: "whiteAlpha.300",
-                        color: "red.600",
-                      }}
+                      _hover={{ bg: "whiteAlpha.300", color: "red.600" }}
                       borderRadius={4}
                       p={1}
                       size={"sm"}
@@ -195,10 +192,7 @@ const ProfilePost = ({ post }) => {
                       onClick={handleDeletePost}
                       isLoading={isDeleting}
                     >
-                      <MdDelete
-                        size={20}
-                        cursor={"pointer"}
-                      />
+                      <MdDelete size={20} cursor={"pointer"} />
                     </Button>
                   )}
                 </Flex>
@@ -209,10 +203,7 @@ const ProfilePost = ({ post }) => {
                     justifySelf={"center"}
                     p={2}
                   >
-                    <Text
-                      fontWeight={"light"}
-                      fontSize={12}
-                    >
+                    <Text fontWeight={"light"} fontSize={12}>
                       {post?.caption}
                     </Text>
                   </Box>
@@ -229,10 +220,7 @@ const ProfilePost = ({ post }) => {
                   ))}
                 </VStack>
                 <Divider my={4} bg={"gray.800"} />
-                <PostFooter
-                  post={post}
-                  isProfilePage={true}
-                />
+                <PostFooter post={post} isProfilePage={true} />
               </Flex>
             </Flex>
           </ModalBody>

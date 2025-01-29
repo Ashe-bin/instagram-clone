@@ -4,7 +4,6 @@ import {
   CloseButton,
   Flex,
   Image,
-  Input,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -18,13 +17,10 @@ import {
 } from "@chakra-ui/react";
 import { CreatePostLogo } from "../../assets/constants";
 import { BsFillImageFill } from "react-icons/bs";
-import { useRef, useState } from "react";
-import usePreviewImg from "../../hooks/usePreviewImg";
+import { useState } from "react";
 import useShowToast from "../../hooks/useShowToast";
 import useAuthStore from "../../store/authStore";
 import useUserProfileStore from "../../store/userProfileStore";
-// import { useLocation } from "react-router-dom";
-import { supabase } from "../../../utils/supase";
 import {
   addDoc,
   arrayUnion,
@@ -35,34 +31,47 @@ import {
 import { firestore } from "../../firebase/firebase";
 import usePostStore from "../../store/postStore";
 import { useLocation } from "react-router-dom";
+import useCloudinaryUpload from "../../hooks/useCloudinaryImageUpload";
+
 const CreatePost = () => {
   const { isOpen, onClose, onOpen } = useDisclosure();
   const [caption, setCaption] = useState("");
-  const imageRef = useRef(null);
-  const {
-    handleImageChange,
-    selectedFile,
-    setSelectedFile,
-  } = usePreviewImg();
-  const [imageFile, setImageFile] = useState(null);
+  const showToast = useShowToast();
 
   const { isLoading, handleCreatePost } = useCreatePost();
-  const showToast = useShowToast();
+  const {
+    cloudinaryImgUpload,
+    uploadError,
+    uploadedImgURL,
+    setUploadedImgURL,
+  } = useCloudinaryUpload();
 
   const handlePostCreation = async () => {
     try {
-      await handleCreatePost(
-        imageFile,
-        selectedFile,
-        caption
-      );
+      if (uploadError) {
+        showToast("Error", "please try to upload again.", "error");
+        return;
+      }
+      await handleCreatePost(uploadedImgURL[0], caption);
       onClose();
       setCaption("");
-      setSelectedFile(null);
+      setUploadedImgURL([]);
     } catch (error) {
       showToast("Error", error.message, "error");
     }
   };
+
+  const isVideo = (url) => {
+    return url && url.endsWith(".mp4");
+  };
+
+  const isImage = (url) => {
+    return (
+      url &&
+      (url.endsWith(".jpg") || url.endsWith(".jpeg") || url.endsWith(".png"))
+    );
+  };
+
   return (
     <>
       <Tooltip
@@ -87,18 +96,13 @@ const CreatePost = () => {
           onClick={onOpen}
         >
           <CreatePostLogo />
-          <Box display={{ base: "none", md: "block" }}>
-            Create
-          </Box>
+          <Box display={{ base: "none", md: "block" }}>Create</Box>
         </Flex>
       </Tooltip>
       <Modal isOpen={isOpen} onClose={onClose} size="xl">
         <ModalOverlay />
 
-        <ModalContent
-          bg={"black"}
-          border={"1px solid gray"}
-        >
+        <ModalContent bg={"black"} border={"1px solid gray"}>
           <ModalHeader>Create Post</ModalHeader>
           <ModalCloseButton />
           <ModalBody pb={6}>
@@ -108,18 +112,8 @@ const CreatePost = () => {
               onChange={(e) => setCaption(e.target.value)}
             />
 
-            <Input
-              type="file"
-              hidden
-              ref={imageRef}
-              onChange={(e) => {
-                setImageFile(e.target.files[0]);
-                handleImageChange(e);
-              }}
-            />
-
             <BsFillImageFill
-              onClick={() => imageRef.current.click()}
+              onClick={() => cloudinaryImgUpload()}
               style={{
                 marginTop: "15px",
                 marginLeft: "5px",
@@ -127,23 +121,31 @@ const CreatePost = () => {
               }}
               size={16}
             />
-            {selectedFile && (
+            {uploadedImgURL[0] && (
               <Flex
                 mt={5}
                 w={"full"}
                 position={"relative"}
                 justifyContent={"center"}
               >
-                <Image
-                  src={selectedFile}
-                  alt="selected image"
-                />
+                {/* Conditional Rendering for Image or Video */}
+                {isImage(uploadedImgURL[0]) && (
+                  <Image src={uploadedImgURL[0]} alt="selected image" />
+                )}
+
+                {isVideo(uploadedImgURL[0]) && (
+                  <video width="100%" controls>
+                    <source src={uploadedImgURL[0]} type="video/mp4" />
+                    Your browser does not support the video tag.
+                  </video>
+                )}
+
                 <CloseButton
                   position={"absolute"}
                   top={2}
                   right={2}
                   onClick={() => {
-                    setSelectedFile("");
+                    setUploadedImgURL([]);
                   }}
                 />
               </Flex>
@@ -151,11 +153,7 @@ const CreatePost = () => {
           </ModalBody>
 
           <ModalFooter>
-            <Button
-              mr={3}
-              onClick={handlePostCreation}
-              isLoading={isLoading}
-            >
+            <Button mr={3} onClick={handlePostCreation} isLoading={isLoading}>
               Post
             </Button>
           </ModalFooter>
@@ -171,29 +169,15 @@ function useCreatePost() {
   const showToast = useShowToast();
   const [isLoading, setIsLoading] = useState();
   const authUser = useAuthStore((state) => state.user);
-  const createPost = usePostStore(
-    (state) => state.createPost
-  );
-  const addPost = useUserProfileStore(
-    (state) => state.addPost
-  );
-  const userProfile = useUserProfileStore(
-    (state) => state.userProfile
-  );
+  const createPost = usePostStore((state) => state.createPost);
+  const addPost = useUserProfileStore((state) => state.addPost);
+  const userProfile = useUserProfileStore((state) => state.userProfile);
   const { pathname } = useLocation();
 
-  const handleCreatePost = async (
-    imageFile,
-    selectedFile,
-    caption
-  ) => {
+  const handleCreatePost = async (uploadedImgURL, caption) => {
     if (isLoading) return;
-    if (!selectedFile) {
-      showToast(
-        "Error",
-        "Please select an image to post",
-        "error"
-      );
+    if (!uploadedImgURL) {
+      showToast("Error", "Please select an image to post", "error");
       return;
     }
     setIsLoading(true);
@@ -207,83 +191,27 @@ function useCreatePost() {
     };
 
     try {
-      if (!imageFile) {
-        return;
+      if (!uploadedImgURL) {
+        showToast("Error", "please try to upload again.", "error");
       }
 
-      const fileExt = imageFile.name
-        .split(".")
-        .pop()
-        .toLowerCase();
-
-      const fileName = `posts/${
-        authUser.uid
-      }-${Date.now()}.${fileExt}`;
-
-      const { data, error } = await supabase.storage
-        .from("image-storage") // Replace with your bucket name
-        .upload(fileName, imageFile);
-
-      if (error) {
-        showToast(
-          "Error",
-          "Please try to upload again",
-          "error"
-        );
-        throw new Error(
-          `uploading image to supabase storage error ${error.message}`
-        );
-      }
-      if (!data) {
-        showToast("Error", "please try again.", "error");
-      }
-
-      const {
-        data: { publicUrl },
-      } = supabase.storage
-        .from("image-storage")
-        .getPublicUrl(fileName);
-      if (!publicUrl) {
-        showToast(
-          "Error",
-          "please try to upload again.",
-          "error"
-        );
-      }
-      console.log("2,  getPublicUrl", publicUrl);
-
-      const postDocRef = await addDoc(
-        collection(firestore, "posts"),
-        newPost
-      );
-      const userDocRef = doc(
-        firestore,
-        "users",
-        authUser.uid
-      );
+      const postDocRef = await addDoc(collection(firestore, "posts"), newPost);
+      const userDocRef = doc(firestore, "users", authUser.uid);
 
       await updateDoc(userDocRef, {
         posts: arrayUnion(postDocRef.id),
       });
 
-      await updateDoc(postDocRef, { imageURL: publicUrl });
+      await updateDoc(postDocRef, { imageURL: uploadedImgURL });
 
-      newPost.imageURL = publicUrl;
-      console.log("3, newpost", newPost);
+      newPost.imageURL = uploadedImgURL;
 
-      if (
-        pathname !== "/" &&
-        userProfile.uid === authUser.uid
-      ) {
+      if (pathname !== "/" && userProfile.uid === authUser.uid) {
         createPost({ ...newPost, id: postDocRef.id });
 
         addPost({ ...newPost, id: postDocRef.id });
       }
-      showToast(
-        "Success",
-        "Post created successfully",
-        "success"
-      );
+      showToast("Success", "Post created successfully", "success");
     } catch (error) {
       showToast("Error", "please try again", "error");
       throw new Error(

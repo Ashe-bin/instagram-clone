@@ -15,60 +15,44 @@ import {
   ModalOverlay,
   Stack,
 } from "@chakra-ui/react";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import useAuthStore from "../../store/authStore";
-import usePreviewImg from "../../hooks/usePreviewImg";
 import useEditProfile from "../../hooks/useEditProfile";
 import useShowToast from "../../hooks/useShowToast";
-import { supabase } from "../../../utils/supase";
+import useCloudinaryUpload from "../../hooks/useCloudinaryImageUpload";
 
 const EditProfile = ({ isOpen, onClose }) => {
   const [inputs, setInputs] = useState({ fullname: "", username: "", bio: "" });
-  const fileRef = useRef(null);
   const authUser = useAuthStore((state) => state.user);
-  const { selectedFile, setSelectedFile, handleImageChange } = usePreviewImg();
+
   const showToast = useShowToast();
   const { editProfile, isUpdating } = useEditProfile();
 
-  const [imageFile, setImageFile] = useState(null);
+  const {
+    cloudinaryImgUpload,
+    uploadError,
+    uploadedImgURL,
+    setUploadedImgURL,
+  } = useCloudinaryUpload();
 
   const handleEditProfile = async () => {
     try {
-      const fileExt = imageFile.name.split(".").pop().toLowerCase();
-
-      const fileName = `posts/${authUser.uid}-${Date.now()}.${fileExt}`;
-
-      const { data, error } = await supabase.storage
-        .from("image-storage") // Replace with your bucket name
-        .upload(fileName, imageFile);
-
-      if (error) {
-        setSelectedFile(null);
-        showToast("Error", "Please try to upload again", "error");
-        throw new Error(
-          `uploading image to supabase storage error ${error.message}`
-        );
-      }
-      if (!data) {
+      if (uploadError) {
         showToast("Error", "please try again.", "error");
-        setSelectedFile(null);
       }
 
-      const {
-        data: { publicUrl },
-      } = supabase.storage.from("image-storage").getPublicUrl(fileName);
-      if (!publicUrl) {
+      if (!uploadedImgURL) {
         showToast("Error", "please try to upload again.", "error");
-        setSelectedFile(null);
       }
 
-      await editProfile(publicUrl, inputs);
-      setSelectedFile(null);
+      await editProfile(uploadedImgURL[0], inputs);
       onClose();
     } catch (error) {
       showToast("Error", error.message, "error");
     }
   };
+  console.log("imgulr ", uploadedImgURL[0]);
+
   return (
     <>
       <Modal isOpen={isOpen} onClose={onClose}>
@@ -100,23 +84,14 @@ const EditProfile = ({ isOpen, onClose }) => {
                     <Center>
                       <Avatar
                         size="xl"
-                        src={selectedFile || authUser.profilePicUrl}
+                        src={uploadedImgURL[0] || authUser.profilePicUrl}
                         border={"2px solid white "}
                       />
                     </Center>
                     <Center w="full">
-                      <Button w="full" onClick={() => fileRef.current.click()}>
+                      <Button w="full" onClick={() => cloudinaryImgUpload()}>
                         Edit Profile Picture
                       </Button>
-                      <Input
-                        type="file"
-                        hidden
-                        ref={fileRef}
-                        onChange={(e) => {
-                          setImageFile(e.target.files[0]);
-                          handleImageChange(e);
-                        }}
-                      />
                     </Center>
                   </Stack>
                 </FormControl>
@@ -167,7 +142,10 @@ const EditProfile = ({ isOpen, onClose }) => {
                     w="full"
                     size="sm"
                     _hover={{ bg: "red.500" }}
-                    onClick={onClose}
+                    onClick={() => {
+                      setUploadedImgURL([]);
+                      onClose();
+                    }}
                   >
                     Cancel
                   </Button>

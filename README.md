@@ -26,6 +26,6 @@ Here are the main technologies used to build this project:
 - **Zustand** – Lightweight and flexible state management.
 - **Firebase** – Backend service for authentication and real-time features.
 - **Chakra UI** – Modern and accessible component library for styling.
-- **Supabase storage** – For image storage .
+- **Cloudinary storage** – For image storage .
 
 ---
