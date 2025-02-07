@@ -24,8 +24,8 @@ const FeedPost = ({ post }) => {
           <Image
             src={post.imageURL}
             alt="Post Image"
-            maxH={"100%"}
-            maxW={"500px"}
+            maxH={"500px"}
+            maxW={"400px"}
             objectFit={"cover"}
           />
         )}
