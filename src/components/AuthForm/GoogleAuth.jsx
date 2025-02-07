@@ -14,7 +14,7 @@ const GoogleAuth = ({ prefix }) => {
     try {
       const newUser = await signInWithGoogle();
       if (!newUser || error) {
-        showToast("Error", error.message, "error");
+        showToast("Error", " error try again", "error");
         return;
       }
       const userRef = doc(firestore, "users", newUser.user.uid);
